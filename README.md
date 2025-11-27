@@ -121,7 +121,7 @@ CREATE DATABASE kelp_db;
 \q
 ```
 
-Then run:
+Then run: (Optional — the backend automatically generates the table.)
 
 ```bash
 psql -U postgres -d kelp_db -f sql/createTable.sql
