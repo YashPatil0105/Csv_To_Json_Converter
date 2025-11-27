@@ -8,3 +8,5 @@ const pool = new Pool({
     user : process.env.PG_USER,
     password : process.env.PG_PASSWORD
 });
+
+module.exports = { pool };
