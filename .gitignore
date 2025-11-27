@@ -37,9 +37,6 @@ temp/
 dist/
 build/
 
-# CSV files (if they contain sensitive data)
-*.csv
-
 # Database files
 *.db
 *.sqlite
