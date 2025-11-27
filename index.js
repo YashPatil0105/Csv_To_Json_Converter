@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const importRoute = require('./src/routes/importRoute');
+const { initializeDatabase } = require('./src/db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +20,15 @@ app.get('/', (req, res) => {
     res.send("Server is up and running !");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Initialize database and start server
+(async () => {
+    try {
+        await initializeDatabase();
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+})();

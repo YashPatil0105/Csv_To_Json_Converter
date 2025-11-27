@@ -9,4 +9,24 @@ const pool = new Pool({
     password : process.env.PG_PASSWORD
 });
 
-module.exports = { pool };
+async function initializeDatabase() {
+    try {
+        const createTableQuery = `
+            CREATE TABLE IF NOT EXISTS public.users (
+                "name" varchar NOT NULL,
+                age int4 NOT NULL,
+                address jsonb NULL,
+                additional_info jsonb NULL,
+                id serial4 PRIMARY KEY
+            );
+        `;
+        
+        await pool.query(createTableQuery);
+        console.log('Database table initialized successfully');
+    } catch (error) {
+        console.error('Error initializing database:', error);
+        throw error;
+    }
+}
+
+module.exports = { pool,initializeDatabase };
