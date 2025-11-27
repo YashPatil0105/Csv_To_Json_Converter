@@ -6,7 +6,8 @@ const router = express.Router();
 router.post('/import', async (req, res) => {
 
     try{
-        const stats = await runImport();
+        const filePath = req.query.filePath || (req.body && req.body.filePath);
+        const stats = await runImport(filePath);
 
         res.json({
             message : 'Import completed successfully.',

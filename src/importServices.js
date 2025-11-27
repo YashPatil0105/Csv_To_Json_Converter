@@ -10,8 +10,8 @@ const { group } = require('console');
 require('dotenv').config();
 
 
-async function runImport() {
-    const csvPath = process.env.CSV_FILE_PATH;
+async function runImport(filePath = null) {
+    const csvPath = filePath || process.env.CSV_FILE_PATH;
 
     if(!csvPath){
         throw new Error("CSV_FILE_PATH environment variable not set");

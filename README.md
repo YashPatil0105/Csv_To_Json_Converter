@@ -1,4 +1,4 @@
-# Kelp CSV to JSON Converter API
+# CSV to JSON Converter API
 
 A Node.js REST API that reads a CSV file, converts it into nested JSON objects using dot notation, imports the data into PostgreSQL in batches, and computes age distribution analytics.
 
@@ -32,7 +32,7 @@ A Node.js REST API that reads a CSV file, converts it into nested JSON objects u
   - Prints a simple age-group distribution table to the console
 
 - **Simple REST API**
-  - `POST /api/import` to trigger CSV import
+  - `POST /api/import` to trigger CSV import with optional file path parameter
   - `GET /health` for health checks
 
 ---
@@ -141,7 +141,7 @@ kelp_csv_to_json_converter_api/
 │   │   └── importRoute.js            # POST /api/import endpoint
 │   ├── tests/
 │   │   ├── test-csvParser.js         # CSV parser unit test
-│   │   └── test-dotNotation.js       # Dot-notation conversion test
+│   │   └── test-dot.js               # Dot-notation conversion test
 │   ├── db.js                         # PostgreSQL connection pool
 │   └── importServices.js             # Core import logic (CSV → DB → age stats)
 ├── sql/
@@ -164,13 +164,13 @@ kelp_csv_to_json_converter_api/
 **Windows (Command Prompt/PowerShell):**
 
 ```bash
-node index.js
+npm run dev
 ```
 
 **macOS/Linux:**
 
 ```bash
-node index.js
+npm run dev
 ```
 
 Expected output:
@@ -181,9 +181,32 @@ Server is running on port 5000
 
 ### 2. Trigger CSV Import
 
+#### Option A: Use Default CSV Path (from .env)
+
 ```bash
 curl -X POST http://localhost:5000/api/import
 ```
+
+This will import from the `CSV_FILE_PATH` specified in your `.env` file.
+
+#### Option B: Specify Custom CSV Path via Query Parameter
+
+```bash
+curl -X POST "http://localhost:5000/api/import?filePath=./data/your_file.csv"
+```
+
+Replace `./data/your_file.csv` with the path to your CSV file.
+
+#### Option C: Specify Custom CSV Path via JSON Body
+
+```bash
+curl -X POST http://localhost:5000/api/import \
+  -H "Content-Type: application/json" \
+  -d "{\"filePath\":\"./data/your_file.csv\"}"
+```
+
+Replace `./data/your_file.csv` with the path to your CSV file.
+
 
 **Example Response (200 OK):**
 
@@ -231,11 +254,9 @@ Response:
 
 ### Test CSV Parser
 
-```bash
-node src\tests\test-csvParser.js
-```
+Test the custom CSV line parser with quoted fields and escaped quotes.
 
-**Windows (Command Prompt/PowerShell):**
+**Windows:**
 
 ```bash
 node src\tests\test-csvParser.js
@@ -254,27 +275,31 @@ headers: [ 'id', 'name', 'meta.age', 'meta.city' ]
 row 1 object: {
   "id": "1",
   "name": "Alice, A",
-  "meta": { "age": "30", "city": "New York" }
+  "meta.age": "30",
+  "meta.city": "New York"
 }
 row 2 object: {
   "id": "2",
   "name": "Bob \"The Builder\"",
-  "meta": { "age": "25", "city": "Paris" }
+  "meta.age": "25",
+  "meta.city": "Paris"
 }
 ```
 
 ### Test Dot-Notation Conversion
 
+Test the conversion of flat dot-notation keys into nested JSON objects.
+
 **Windows:**
 
 ```bash
-node src\tests\test-dotNotation.js
+node src\tests\test-dot.js
 ```
 
 **macOS/Linux:**
 
 ```bash
-node src/tests/test-dotNotation.js
+node src/tests/test-dot.js
 ```
 
 Expected output:
@@ -368,10 +393,26 @@ CREATE TABLE public.users (
 
 Imports CSV file to PostgreSQL and returns age distribution statistics.
 
-**Request:**
+**Request Options:**
+
+**1. Default (uses `.env` CSV_FILE_PATH):**
 
 ```bash
 curl -X POST http://localhost:5000/api/import
+```
+
+**2. Custom path via query parameter:**
+
+```bash
+curl -X POST "http://localhost:5000/api/import?filePath=./data/users.csv"
+```
+
+**3. Custom path via JSON body:**
+
+```bash
+curl -X POST http://localhost:5000/api/import \
+  -H "Content-Type: application/json" \
+  -d "{\"filePath\":\"./data/custom.csv\"}"
 ```
 
 **Response (200 OK):**
@@ -399,6 +440,12 @@ curl -X POST http://localhost:5000/api/import
   "details": "ENOENT: no such file or directory"
 }
 ```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filePath` | string | No | Absolute or relative path to CSV file. If not provided, uses `CSV_FILE_PATH` from `.env` |
 
 ---
 
@@ -496,6 +543,11 @@ Import failed. ... ENOENT: no such file or directory
    CSV_FILE_PATH=./data/users.csv
    ```
 
+3. Or provide absolute path via API:
+   ```bash
+   curl -X POST "http://localhost:5000/api/import?filePath=D:\\path\\to\\users.csv"
+   ```
+
 ---
 
 ### 4. Records Skipped During Import
@@ -559,13 +611,3 @@ Skipping invalid record at line 5
 
 ---
 
-## 🔮 Future Enhancements
-
-- Add pagination & GET endpoints to fetch imported users
-- Make batch size configurable via `.env`
-- Add more comprehensive unit tests
-- Implement structured logging (Winston/Bunyan)
-- Support CSV uploads via multipart/form-data
-- Add data validation and transformation rules
-
----
