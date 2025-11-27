@@ -610,14 +610,3 @@ Skipping invalid record at line 5
 * Missing CSV file → 500 error with clear message
 
 ---
-
-## 🔮 Future Enhancements
-
-- Add pagination & GET endpoints to fetch imported users
-- Make batch size configurable via `.env`
-- Add more comprehensive unit tests
-- Implement structured logging (Winston/Bunyan)
-- Support CSV uploads via multipart/form-data
-- Add data validation and transformation rules
-
----
