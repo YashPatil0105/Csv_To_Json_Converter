@@ -1,4 +1,4 @@
-# Kelp CSV to JSON Converter API
+# CSV to JSON Converter API
 
 A Node.js REST API that reads a CSV file, converts it into nested JSON objects using dot notation, imports the data into PostgreSQL in batches, and computes age distribution analytics.
 
